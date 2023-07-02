@@ -29,13 +29,14 @@ def handle(client):
             # Broadcasting Messages
             message = client.recv(1024)
             broadcast(message)
-        except:
+        except Exception as e:
             # Removing And Closing Clients
             nickname = clients[client]
             clients.pop(client)
             client.close()
-            print(nickname, 'left the chat!')
-            broadcast('{} left!'.format(nickname).encode('utf-8', errors='ignore'))
+            if type(e) == ConnectionResetError:
+                print(nickname, 'left the chat!')
+                broadcast('{} left!'.format(nickname).encode('utf-8', errors='ignore'))
             break
 
 # Receiving / Listening Function
@@ -57,11 +58,15 @@ def receive():
 
         # Start Handling Thread For Client
         thread = threading.Thread(target=handle, args=(client,))
-        thread.daemon = True
         thread.start()
+
 try:
     print("Server if listening...")
     receive()
 except KeyboardInterrupt:
+    print('\nServer stopped.')
+    for client in clients.keys():
+        client.send('EXIT'.encode('utf-8', errors='ignore'))
+        client.close()
     print('\nServer stopped.')
     sys.exit()
