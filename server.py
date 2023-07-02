@@ -61,7 +61,7 @@ def receive():
         thread.start()
 
 try:
-    print("Server if listening...")
+    print("Server is listening...")
     receive()
 except KeyboardInterrupt:
     print('\nServer stopped.')
